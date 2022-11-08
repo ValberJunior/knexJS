@@ -1,5 +1,7 @@
 # Estudo Sobre o KnexJS
 
+
+
 ```sh
 $ npm install knex --save
 
@@ -492,6 +494,12 @@ declare module 'knex/types/tables' {
   }
 }
 ```
+
+
+
+
+
+<hr>
 
 
 
@@ -1101,6 +1109,781 @@ knex('users').sumDistinct('products')
 Mais exemplos:
 
 <a href="https://knexjs.org/guide/query-builder.html#rank">Documentação</a>
+
+
+
+<hr>
+
+
+
+## Where Clauses
+
+Existem vários métodos para auxiliar em cláusulas **where** dinâmicas. Em muitos lugares, funções podem ser usadas no lugar de valores, construindo **subconsultas**. Na maioria dos lugares, consultas knex existentes podem ser usadas para compor **subconsultas**, etc. 
+
+### where
+
+**sintaxe**
+
+>**.where(~mixed~)**
+>**.orWhere**
+
+```js
+knex('users').where({
+  first_name: 'Test',
+  last_name:  'User'
+}).select('id')
+```
+
+chave, valor:
+
+```js
+knex('users').where('id', 1)
+```
+
+Funções:
+
+```js
+knex('users')
+  .where((builder) =>
+    builder
+      .whereIn('id', [1, 11, 15])
+      .whereNotIn('id', [17, 19])
+  )
+  .andWhere(function() {
+    this.where('id', '>', 10)
+  })
+```
+
+Cadeia Agrupada:
+
+```js
+knex('users').where(function() {
+  this.where('id', 1).orWhere('id', '>', 10)
+}).orWhere({name: 'Tester'})
+```
+
+Operadores:
+
+```js
+knex('users').where('columnName', 'like', '%rowlikeme%')
+```
+
+
+
+**Exemplo de uso**
+
+```js
+knex('users').where('votes', '>', 100)
+
+const subquery = knex('users')
+  .where('votes', '>', 100)
+  .andWhere('status', 'active')
+  .orWhere('name', 'John')
+  .select('id');
+
+knex('accounts').where('id', 'in', subquery)
+```
+
+
+
+### Where NOT
+
+**sintaxe**
+
+> **.whereNot(~mixed~)** **.orWhereNot**
+
+```js
+knex('users').whereNot({
+  first_name: 'Test',
+  last_name:  'User'
+}).select('id')
+```
+
+Valor, Chave:
+
+```js
+knex('users').whereNot('id', 1)
+```
+
+Cadeia Agrupada:
+
+```js
+knex('users').whereNot(function() {
+  this.where('id', 1).orWhereNot('id', '>', 10)
+}).orWhereNot({name: 'Tester'})
+```
+
+Operador:
+
+```js
+knex('users').whereNot('votes', '>', 100)
+```
+
+<mark>**WhereNot** não é adequado para **subconsultas** do tipo "**in**" e "**between**". Você deve usar "**not in**" e "**not between**" em vez disso.</mark>
+
+
+
+### WhereLike
+
+**sintaxe**
+
+>**.whereLike(coluna, string|builder|raw)**
+>**.orWhereLike**
+
+:arrow_right: Adiciona uma cláusula where com comparação de **substring** que **diferencia maiúsculas de minúsculas** em uma determinada coluna com um determinado valor.
+
+```js
+knex('users').whereLike('email', '%mail%')
+
+knex('users')
+  .whereLike('email', '%mail%')
+  .andWhereLike('email', '%.com')
+  .orWhereLike('email', '%name%')
+```
+
+
+
+### WhereILike
+
+>**.whereILike(column, string|builder|raw)**
+>**.orWhereILike**
+
+:arrow_right: Adiciona uma cláusula where com comparação de **substring** que **não diferencia maiúsculas de minúsculas** em uma determinada coluna com um determinado valor.
+
+```js
+knex('users').whereILike('email', '%mail%')
+
+knex('users')
+  .whereILike('email', '%MAIL%')
+  .andWhereILike('email', '%.COM')
+  .orWhereILike('email', '%NAME%')
+```
+
+
+
+:heavy_plus_sign: Mais "**Where Clauses**" <a href="https://knexjs.org/guide/query-builder.html#where-clauses">Aqui</a>
+
+
+
+<hr>
+
+
+
+## JOIN METHODS
+
+<a href="https://knexjs.org/guide/query-builder.html#wherejsonsubsetof">Documentação</a>
+
+### Join
+
+> **.join(table, first, [operator], second)**
+
+:arrow_right:  Pode ser usado para especificar junções entre tabelas, com o primeiro argumento sendo a tabela de junção, os próximos três argumentos sendo a primeira coluna de junção, o operador de junção e a segunda coluna de junção, respectivamente.
+
+```js
+knex('users')
+  .join('contacts', 'users.id', '=', 'contacts.user_id')
+  .select('users.id', 'contacts.phone')
+
+knex('users')
+  .join('contacts', 'users.id', 'contacts.user_id')
+  .select('users.id', 'contacts.phone')
+```
+
+Para junções agrupadas, especifique uma função como o segundo argumento para a consulta de junção e use `on`com `orOn`ou `andOn`para criar junções agrupadas com parênteses.
+
+```js
+knex.select('*').from('users').join('accounts', function() {
+  this
+    .on('accounts.id', '=', 'users.account_id')
+    .orOn('accounts.owner_id', '=', 'users.id')
+})
+```
+
+Para instruções de junção aninhadas, especifique uma função como primeiro argumento `on`de `orOn`ou`andOn`
+
+```js
+knex.select('*').from('users').join('accounts', function() {
+  this.on(function() {
+    this.on('accounts.id', '=', 'users.account_id')
+    this.orOn('accounts.owner_id', '=', 'users.id')
+  })
+})
+```
+
+Também é possível usar um objeto para representar a sintaxe de junção.
+
+```js
+knex.select('*')
+  .from('users')
+  .join('accounts', {'accounts.id': 'users.account_id'})
+```
+
+Se você precisar usar um valor literal (string, número ou booleano) em uma junção em vez de uma coluna, use `knex.raw`.
+
+```js
+knex.select('*')
+  .from('users')
+  .join(
+    'accounts', 
+    'accounts.type',
+    knex.raw('?', ['admin'])
+  )
+```
+
+
+
+### LeftJoin
+
+**sintaxe**
+
+> **.leftJoin(table, ~mixed~)**
+
+```js
+knex.select('*')
+  .from('users')
+  .leftJoin('accounts', 'users.id', 'accounts.user_id')
+
+knex.select('*')
+  .from('users')
+  .leftJoin('accounts', function() {
+    this
+      .on('accounts.id', '=', 'users.account_id')
+      .orOn('accounts.owner_id', '=', 'users.id')
+  })
+```
+
+
+
+### RightJoin
+
+**sintaxe**
+
+> **.rightJoin(table, ~mixed~)**
+
+```js
+knex.select('*')
+  .from('users')
+  .rightJoin('accounts', 'users.id', 'accounts.user_id')
+
+knex.select('*')
+  .from('users')
+  .rightJoin('accounts', function() {
+    this
+      .on('accounts.id', '=', 'users.account_id')
+      .orOn('accounts.owner_id', '=', 'users.id')
+  })
+```
+
+
+
+### CrossJoin
+
+> **.crossJoin(table, ~mixed~)**
+
+<mark>As condições de junção cruzada são suportadas apenas no MySQL e SQLite3. Para condições de junção, use innerJoin.</mark>
+
+```js
+knex.select('*')
+  .from('users')
+  .crossJoin('accounts')
+
+knex.select('*')
+  .from('users')
+  .crossJoin('accounts', 'users.id', 'accounts.user_id')
+
+knex.select('*')
+  .from('users')
+  .crossJoin('accounts', function() {
+    this
+      .on('accounts.id', '=', 'users.account_id')
+      .orOn('accounts.owner_id', '=', 'users.id')
+  })
+```
+
+
+
+<hr>
+
+
+
+## OnClauses
+
+### OnIn
+
+**sintaxe**
+
+> **.onIn(column, values)**
+
+```js
+knex.select('*')
+  .from('users')
+  .join('contacts', function() {
+    this
+      .on('users.id', '=', 'contacts.id')
+      .onIn('contacts.id', [7, 15, 23, 41])
+  })
+```
+
+### OnNotIn
+
+**sintaxe**
+
+> **.onNotIn(column, values)**
+
+:arrow_right: Adiciona uma cláusula onNotIn à consulta.
+
+```js
+knex.select('*')
+  .from('users')
+  .join('contacts', function() {
+    this
+      .on('users.id', '=', 'contacts.id')
+      .onNotIn('contacts.id', [7, 15, 23, 41])
+  })
+```
+
+### OnExists
+
+**sintaxe**
+
+> **.onExists(construtor | retorno de chamada)**
+
+```js
+knex.select('*').from('users').join('contacts', function() {
+  this
+    .on('users.id', '=', 'contacts.id')
+    .onExists(function() {
+      this.select('*')
+        .from('accounts')
+        .whereRaw('users.account_id = accounts.id');
+    })
+})
+```
+
+
+
+### OnNotExists
+
+**sintaxe**
+
+> **.onNotExists(builder | callback)**
+
+```js
+knex.select('*').from('users').join('contacts', function() {
+  this
+    .on('users.id', '=', 'contacts.id')
+    .onNotExists(function() {
+      this.select('*')
+        .from('accounts')
+        .whereRaw('users.account_id = accounts.id');
+    })
+})
+```
+
+
+
+### onBetween
+
+**sintaxe**
+
+> **.onBetween(column, range)**
+
+```js
+knex.select('*').from('users').join('contacts', function() {
+  this
+    .on('users.id', '=', 'contacts.id')
+    .onBetween('contacts.id', [5, 30])
+})
+```
+
+
+
+### OnNotBetween
+
+**Sintaxe**
+
+> **.onNotBetween(column, range)**
+
+```js
+knex.select('*').from('users').join('contacts', function() {
+  this
+    .on('users.id', '=', 'contacts.id')
+    .onNotBetween('contacts.id', [5, 30])
+})
+```
+
+
+
+<hr>
+
+
+
+## ClearClauses
+
+<a href="https://knexjs.org/guide/query-builder.html#clearclauses">Documentação</a>
+
+### Group By
+
+:arrow_right:  **Adds a group by clause to the query.**
+
+```js
+knex('users').groupBy('count')
+```
+
+
+
+### OrderBy
+
+**sintaxe**
+
+> **.orderBy(column|columns, [direction], [nulls])**
+
+:arrow_right: Simples
+
+```js
+knex('users').orderBy('email')
+
+knex('users').orderBy('name', 'desc')
+
+knex('users').orderBy('name', 'desc', 'first')
+```
+
+:arrow_right: Multiplas Colunas:
+
+```js
+knex('users').orderBy([
+  'email', { column: 'age', order: 'desc' }
+])
+
+knex('users').orderBy([
+  { column: 'email' }, 
+  { column: 'age', order: 'desc' }
+])
+
+knex('users').orderBy([
+  { column: 'email' }, 
+  { column: 'age', order: 'desc', nulls: 'last' }
+])
+```
+
+
+
+<hr>
+
+
+
+## Having Clauses
+
+### having
+
+**sintaxe**
+
+> **.having(column, operator, value)**
+
+```js
+knex('users')
+  .groupBy('count')
+  .orderBy('name', 'desc')
+  .having('count', '>', 100)
+```
+
+### havingIn
+
+**sintaxe**
+
+> **.havingIn(column, values)**
+
+```js
+knex.select('*')
+  .from('users')
+  .havingIn('id', [5, 3, 10, 17])
+```
+
+
+
+### havingNotIn
+
+**sintaxe**
+
+> **.havingNotIn(column, values)**
+
+```js
+knex.select('*')
+  .from('users')
+  .havingNotIn('id', [5, 3, 10, 17])
+```
+
+
+
+##### Mais exemplos: <a href="https://knexjs.org/guide/query-builder.html#having-clauses">Leia a documentação</a>
+
+
+
+<hr>
+
+
+
+## Schema Builder
+
+<a href="https://knexjs.org/guide/schema-builder.html">Documentação completa</a>
+
+### WithSchema
+
+**sintaxe**
+
+> **knex.schema.withSchema([schemaName])**
+
+```js
+knex.schema.withSchema('public').createTable('users', function (table) {
+  table.increments();
+})
+```
+
+
+
+### CreateTable
+
+>**knex.schema.createTable(tableName, callback)**
+
+```js
+knex.schema.createTable('users', function (table) {
+  table.increments();
+  table.string('name');
+  table.timestamps();
+})
+```
+
+
+
+### CreateTableLike
+
+:arrow_right:Criar Tabela com base em uma tabela Existente:
+
+**sintaxe**
+
+> **knex.schema.createTableLike(tableName, tableNameToCopy, [callback])**
+
+```js
+knex.schema.createTableLike('new_users', 'users')
+
+// "new_users" table contains columns 
+// of users and two new columns 'age' and 'last_name'.
+knex.schema.createTableLike('new_users', 'users', (table) => {
+  table.integer('age');
+  table.string('last_name');
+})
+```
+
+
+
+### DropTable
+
+**sintaxe**
+
+>**knex.schema.dropTable(tableName)**
+
+```js
+knex.schema.dropTable('users')
+```
+
+
+
+### DropTableIfExists
+
+:arrow_right: **Excluir a tabela se ela existir**
+
+> **knex.schema.dropTableIfExists(tableName)**
+
+```js
+knex.schema.dropTableIfExists('users')
+```
+
+
+
+### renameTable
+
+**sintaxe**
+
+> **knex.schema.renameTable(from, to)**
+
+```js
+knex.schema.renameTable('users', 'old_users')
+```
+
+
+
+### hasTable
+
+:arrow_right: **Verificar se existe a tabela** 
+
+**sintaxe**
+
+> **knex.schema.hasTable(tableName)**
+
+```js
+knex.schema.hasTable('users').then(function(exists) {
+  if (!exists) {
+    return knex.schema.createTable('users', function(t) {
+      t.increments('id').primary();
+      t.string('first_name', 100);
+      t.string('last_name', 100);
+      t.text('bio');
+    });
+  }
+});
+```
+
+
+
+### Table
+
+:arrow_right: Escolhe uma tabela de banco de dados e, em seguida, modifica a tabela, usando as funções **Schema** **Building** dentro do retorno de chamada.
+
+**sintaxe**
+
+> **knex.schema.table(tableName, callback)**
+
+```js
+knex.schema.table('users', function (table) {
+  table.dropColumn('name');
+  table.string('first_name');
+  table.string('last_name');
+})
+```
+
+
+
+### AlterTable
+
+:arrow_right: **Alternar Tabela**
+
+**sintaxe**
+
+> **knex.schema.alterTable(tableName, callback)**
+
+```js
+knex.schema.alterTable('users', function (table) {
+  table.dropColumn('name');
+  table.string('first_name');
+  table.string('last_name');
+})
+```
+
+
+
+<a href="https://knexjs.org/guide/schema-builder.html#createview">Ver mais na Documentação</a>
+
+
+
+<hr>
+
+## Schema Building
+
+<a href="https://knexjs.org/guide/schema-builder.html#schema-building">Documentação completa</a>
+
+### Date
+
+**sintaxe**
+
+> **table.date(name)**
+
+
+
+### DateTime
+
+**sintaxe**
+
+> **table.datetime(name, options={[useTz: boolean], [precision: number]})**
+
+:arrow_right: Adiciona uma coluna de data e hora. Por padrão o PostgreSQL cria coluna com fuso horário (tipo timestamptz). Esse comportamento pode ser substituído passando a opção useTz (que por padrão é verdadeira para o PostgreSQL). MySQL e MSSQL não possuem a opção useTz.
+
+**Uma opção de precisão pode ser passada:**
+
+```js
+table.datetime('some_time', { precision: 6 }).defaultTo(knex.fn.now(6))
+```
+
+
+
+### Timestamp
+
+**sintaxe**
+
+> **table.timestamp(name, options={[useTz: boolean], [precision: number]})**
+
+```js
+table.timestamp('created_at').defaultTo(knex.fn.now());
+```
+
+:arrow_right: No PostgreSQL e MySQL uma opção de precisão pode ser passada:
+
+```js
+table.timestamp('created_at', { precision: 6 }).defaultTo(knex.fn.now(6));
+```
+
+:arrow_right: No PostgreSQL e MSSQL uma opção de fuso horário pode ser passada:
+
+```js
+table.timestamp('created_at', { useTz: true });
+```
+
+
+
+### UUID
+
+**sintaxe**
+
+> **table.uuid(name, options=({[useBinaryUuid:boolean],[primaryKey:boolean]})**
+
+:arrow_right: Adiciona uma coluna **uuid** - isso usa o tipo **uuid** embutido no **PostgreSQL** e retorna para um char(36) em outros bancos de dados por padrão. 
+
+
+
+### Primary
+
+**sintaxe**
+
+> **table.primary(columns, options=({[constraintName:string],[deferrable:'not deferrable'|'deferred'|'immediate']})**
+
+:arrow_right: Crie uma restrição de chave primária na tabela usando input `columns`
+
+```js
+knex.schema.alterTable('users', function(t) {
+  t.unique('email')
+})
+knex.schema.alterTable('job', function(t) {
+  t.primary('email',{constraintName:'users_primary_key',deferrable:'deferred'})
+})
+```
+
+
+
+## Foreign
+
+**sintaxe**
+
+> **table.foreign(columns, [foreignKeyName])[.onDelete(statement).onUpdate(statement).withKeyName(foreignKeyName).deferrable(type)]**
+
+:arrow_right: Adiciona uma restrição de chave estrangeira a uma tabela para uma coluna existente usando `table.foreign(column).references(column)`ou várias colunas usando `table.foreign(columns).references(columns).inTable(table)`.
+
+```js
+knex.schema.table('users', function (table) {
+  table.integer('user_id').unsigned()
+  table.foreign('user_id').references('Items.user_id_in_items').deferrable('deferred')
+})
+```
+
+
+
+<a href="https://knexjs.org/guide/schema-builder.html#chainable-methods">Ver mais na documentação</a>
+
+
+
+<hr>
+
+
+
+
 
 
 
