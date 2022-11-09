@@ -1,11 +1,13 @@
-# Estudo Sobre o KnexJS
+# Estudo Sobre o KnexJS <img src="https://knexjs.org/knex-logo.png" alt="img" style="zoom:20%;" />
 
+<a href="https://knexjs.org/">Documentação completa</a>
 
+:arrow_right: Instalação;
 
 ```sh
 $ npm install knex --save
 
-# Then add one of the following (adding a --save) flag:
+# Em seguida (adicionar a flag --save):
 $ npm install pg
 $ npm install pg-native
 $ npm install sqlite3
@@ -18,7 +20,9 @@ $ npm install tedious
 
 ### Opções de configuração
 
-O próprio módulo **Knex** é uma função que retorna um objeto de configuração para o **Knex**, aceitando alguns parâmetros. O parâmetro **client** é necessário e determina qual adaptador de cliente será usado com a biblioteca:
+O próprio **módulo** **Knex** é uma função que retorna um objeto de configuração para o **Knex**, aceitando alguns parâmetros. 
+
+O parâmetro **client** é necessário e determina qual adaptador será usado com a biblioteca:
 
 ```javascript
 const knex = require('knex')({
@@ -33,7 +37,7 @@ const knex = require('knex')({
 });
 ```
 
-As opções de conexão são passadas diretamente para o **client** de banco de dados apropriado para criar a conexão, e podem ser um objeto, uma cadeia de conexão ou uma função que devolva um objeto.
+As opções de conexão são passadas diretamente para o **client** **de banco de dados** apropriado para criar a conexão, e podem ser um objeto, uma cadeia de conexão ou uma função que devolva um objeto.
 
 
 
@@ -68,7 +72,7 @@ Você também pode executar **SQLite3** ou **Better-SQLite3** com um banco de da
 
 ```js
 const knex = require('knex')({
-  client: 'sqlite3', // or 'better-sqlite3'
+  client: 'sqlite3', // ou 'better-sqlite3'
   connection: {
     filename: ":memory:"
   }
@@ -138,7 +142,7 @@ const knex = require('knex')({
 });
 ```
 
-Por padrão, o objeto de configuração recebido por meio de uma função é armazenado em **cache** e reutilizado para todas as conexões. Para alterar esse comportamento, uma **expirationChecker** função pode ser retornada como parte do objeto de configuração. O **expirationChecker** é consultado antes de tentar criar novas conexões , e caso retorne **true**, um novo objeto de configuração é recuperado. Por exemplo, para trabalhar com um token de autenticação com vida útil limitada:
+Por padrão, o objeto de configuração recebido por meio de uma função é armazenado em **cache** e reutilizado para todas as conexões. Para alterar esse comportamento, uma função **expirationChecker**  pode ser retornada como parte do objeto de configuração. O **expirationChecker** é consultado antes de tentar criar novas conexões , e caso retorne **true**, um novo objeto de configuração é recuperado. Por exemplo, para trabalhar com um token de autenticação com vida útil limitada:
 
 ```js
 const knex = require('knex')({
@@ -177,7 +181,7 @@ const knex = require('knex')({
 });
 ```
 
-**Useparams** :arrow_forward: É um parâmetro opcional que permite passar parâmetros arbitrários que serão acessíveis via propriedade **knex.userParams**.
+**Useparams** :arrow_right: É um parâmetro opcional que permite passar parâmetros arbitrários que serão acessíveis via propriedade **knex.userParams**.
 
 ```js
 const knex = require('knex')({
@@ -198,9 +202,7 @@ const knex = require('knex')({
 
 >**Inicializar a biblioteca normalmente deve acontecer apenas uma vez em seu aplicativo, pois cria um pool de conexões para o banco de dados atual, você deve usar a instância retornada da chamada de inicialização em toda a sua biblioteca.**
 
-
-
-Especifique o client para o tipo específico de SQL em que você está interessado.
+Especifique o **client** para o tipo específico de SQL em que você está interessado.
 
 ```js
 const pg = require('knex')({client: 'pg'});
@@ -235,19 +237,13 @@ const customUserParam = knexWithParams
   .customUserParam;
 ```
 
-
-
 ##### Debug
 
 :arrow_right: passando o atributo "**debug : true**", o objeto de inicialização ativará a depuração para todas as consultas.
 
-
-
 ##### AsyncStackTraces
 
 :arrow_right: passando o atributo "**asyncStackTraces : true**", o objeto de inicialização ativará a captura de rastreamento de pilha para todos os construtores de consultas, consultas brutas e construtores de esquema.
-
-
 
 ##### Pool
 
@@ -291,21 +287,21 @@ const knex = require('knex')({
   connection: {/*...*/},
   pool: {
     afterCreate: function (conn, done) {
-      // in this example we use pg driver's connection API
+      // neste exemplo usamos o API de conexão do driver pg
       conn.query('SET timezone="UTC";', function (err) {
         if (err) {
-          // first query failed, 
-          // return error and don't try to make next query
+          // A primeira consulta falhou,
+          // retornar erro e não tente fazer a próxima consulta
           done(err, conn);
         } else {
-          // do the second query...
+          // fazer a segunda consulta...
           conn.query(
             'SELECT set_limit(0.01);', 
             function (err) {
-              // if err is not falsy, 
-              //  connection is discarded from pool
-              // if connection aquire was triggered by a 
-              // query the error is passed to query promise
+              // se o erro não for falso, 
+              // a conexão é descartada da pool
+              // se a conexão aquire foi acionada por uma consulta
+              // o erro é passado para próxima query promise
               done(err, conn);
             });
         }
@@ -379,10 +375,9 @@ Pode-se fazer, por exemplo, snake_case -> camelCase.
 ```js
 const knex = require('knex')({
   client: 'mysql',
-  // overly simplified snake_case -> camelCase converter
+  //  snake_case -> camelCase 
   postProcessResponse: (result, queryContext) => {
-    // TODO: add special case for raw results 
-    // (depends on dialect)
+    // Fazer: Adicionar "special case" para o "row result". 
     if (Array.isArray(result)) {
       return result.map(row => convertToCamel(row));
     } else {
@@ -401,7 +396,7 @@ Com o wrapIdentifier pode-se substituir a forma como os identificadores são tra
 ```js
 const knex = require('knex')({
   client: 'mysql',
-  // overly simplified camelCase -> snake_case converter
+  // camelCase -> snake_case
   wrapIdentifier: (
     value, 
     origImpl, 
@@ -449,46 +444,36 @@ declare module 'knex/types/tables' {
   }
   
   interface Tables {
-    // This is same as specifying `knex<User>('users')`
+    // Isto é o mesmo que especificar `knex<User>('users')`
     users: User;
-    // For more advanced types, you can specify separate type
-    // for base model, "insert" type and "update" type.
-    // But first: notice that if you choose to use this, 
-    // the basic typing showed above can be ignored.
-    // So, this is like specifying
-    //    knex
-    //    .insert<{ name: string }>({ name: 'name' })
-    //    .into<{ name: string, id: number }>('users')
+    // Para tipos mais avançados, você pode especificar tipos separados
+    // para modelo básico, tipo "insert" e tipo "update".
+    // Mas primeiro: observe que se você optar por usar isto, 
+    // a digitação básica mostrada acima pode ser ignorada.
+    // Então, isto é como especificar
+    // knex
+    // .insert<{ name: string }>({ name: 'name' })
+    // .into<{ name: string, id: number }>('usuários')
     users_composite: Knex.CompositeTableType<
-      // This interface will be used for return type and 
-      // `where`, `having` etc where full type is required 
+
       User,
-      // Specifying "insert" type will also make sure
-      // data matches interface in full. Meaning
-      // if interface is `{ a: string, b: string }`,
-      // `insert({ a: '' })` will complain about missing fields.
-      // 
-      // For example, this will require only "name" field when inserting
-      // and make created_at and updated_at optional.
-      // And "id" can't be provided at all.
-      // Defaults to "base" type.
       Pick<User, 'name'> & Partial<Pick<User, 'created_at' | 'updated_at'>>,
-      // This interface is used for "update()" calls.
-      // As opposed to regular specifying interface only once,
-      // when specifying separate update interface, user will be
-      // required to match it  exactly. So it's recommended to
-      // provide partial interfaces for "update". Unless you want to always
-      // require some field (e.g., `Partial<User> & { updated_at: string }`
-      // will allow updating any field for User but require updated_at to be
-      // always provided as well.
+      // Esta interface é utilizada para chamadas de "update()".
+      // Em oposição à interface de especificação regular apenas uma vez,
+      // ao especificar uma interface de atualização separada, o usuário será
+      // necessário para corresponder exatamente. Portanto, é recomendado
+      // fornecer interfaces parciais para "update". A menos que você queira sempre
+      // requerer algum campo (por exemplo, `Parcial<User> & {updated_at: string }``
+      // permitirá a atualização de qualquer campo para o Usuário, mas requer 				  // "updated_at" para ser
+      // sempre fornecido também.
       // 
-      // For example, this wil allow updating all fields except "id".
-      // "id" will still be usable for `where` clauses so
-      //      knex('users_composite')
-      //      .update({ name: 'name2' })
-      //      .where('id', 10)`
-      // will still work.
-      // Defaults to Partial "insert" type
+      // Por exemplo, isto permitirá atualizar todos os campos exceto "id".
+      // "id" ainda será utilizável para as cláusulas "where" assim
+      // knex('users_composite')
+      // .update({ name: 'name2' })
+      // .where('id', 10)`
+      // ainda vai funcionar.
+      // Predefinições do tipo "insert" parcial
       Partial<Omit<User, 'id'>>
     >;
   }
@@ -509,9 +494,9 @@ declare module 'knex/types/tables' {
 
 O coração da biblioteca, o construtor de consultas knex é uma interface usada para construir e executar SQL padrão, como `select`, `insert`, `update`, `delete`.
 
-Mais comumente, é necessário apenas plain `tableName.columnName`, `tableName`ou `columnName`, mas em muitos casos também é necessário passar um alias de como esse identificador é referido posteriormente na consulta.
+É necessário apenas o  `tableName.columnName`, `tableName`ou `columnName`, mas em muitos casos também é necessário passar um alias de como esse identificador é referido posteriormente na consulta.
 
-Há duas maneiras de declarar um alias para identificador. Pode-se dar diretamente `as aliasName`o sufixo para o identificador (por exemplo `identifierName as aliasName`) ou pode se passar um objeto `{ aliasName: 'identifierName' }`.
+Há duas maneiras de declarar um alias para identificador. Pode-se dar diretamente o sufixo para o identificador (por exemplo `identifierName as aliasName`) ou pode se passar um objeto `{ aliasName: 'identifierName' }`.
 
 ```js
 knex({ a: 'table', b: 'table' })
@@ -544,11 +529,11 @@ interface User {
 
 knex('users')
   .where('id')
-  .first(); // Resolves to any
+  .first(); 
 
-knex<User>('users') // User is the type of row in database
-  .where('id', 1) // Your IDE will be able to help with the completion of id
-  .first(); // Resolves to User | undefined
+knex<User>('users') // O usuário é o tipo de linha no banco de dados
+  .where('id', 1) // Sua IDE será capaz de ajudar com a conclusão do id
+  .first(); // Resolve ao usuário | undefined
 ```
 
 ```js
@@ -564,48 +549,45 @@ knex<User>('users') // User is the type of row in database
  */
 const Users = () => knex('Users')
 
-// 'id' property can be autocompleted by editor
+// A propriedade 'id' pode ser autocompletada pelo editor
 Users().where('id', 1) 
 ```
 
-A maioria das APIs knex alteram o objeto atual e o retornam. Esse padrão não funciona bem com inferência de tipo.
+A maioria das **APIs** **knex** alteram o objeto atual e o retornam. Esse padrão não funciona bem com inferência de tipo.
 
 ```ts
 knex<User>('users')
   .select('id')
-  .then((users) => { // Type of users is inferred as Pick<User, "id">[]
-    // Do something with users
+  .then((users) => { 
+    // Fazer algo com os usuários
   });
 
 knex<User>('users')
   .select('id')
   .select('age')
-  .then((users) => { // Type of users is inferred as Pick<User, "id" | "age">[]
-    // Do something with users
+  .then((users) => { 
+    // Fazer algo com os usuários
   });
 
-// The type of usersQueryBuilder is determined here
+// O tipo de usersQueryBuilder é determinado aqui
 const usersQueryBuilder = knex<User>('users').select('id');
 
 if (someCondition) {
-  // This select will not change the type of usersQueryBuilder
-  // We can not change the type of a pre-declared variable in TypeScript
+  // Esta seleção não mudará o tipo de usersQueryBuilder
   usersQueryBuilder.select('age');
 }
 usersQueryBuilder.then((users) => {
-  // Type of users here will be Pick<User, "id">[]
-  // which may not be what you expect.
+  //...
 });
 
 // You can specify the type of result explicitly through a second type parameter:
 const queryBuilder = knex<User, Pick<User, "id" | "age">>('users');
 
-// But there is no type constraint to ensure that these properties have actually been
-// selected.
+// Você pode especificar o tipo de resultado explicitamente através de um segundo 			parâmetro do tipo selecionado
 
-// So, this will compile:
+// Portanto, isto irá compilar:
 queryBuilder.select('name').then((users) => {
-  // Type of users is Pick<User, "id"> but it will only have name
+  // O tipo será <User, "id"> mas só terá o nome
 })
 ```
 
@@ -627,7 +609,7 @@ knex.select()
 knex.select()
   .from('books')
   .timeout(1000, { 
-    cancel: true // MySQL and PostgreSQL only
+    cancel: true // MySQL e PostgreSQL somente
   }) 
 ```
 
@@ -651,23 +633,23 @@ Obs: Se informar * retorna todos os dados da tabela.
 
 ```ts
 knex.select('id')
-  .from<User>('users'); // Resolves to Pick<User, "id">[]
+  .from<User>('users'); // Tipagem <User, "id">[]
 
 knex.select('users.id')
-  .from<User>('users'); // Resolves to any[]
-// ^ TypeScript doesn't provide us a way to look into a string and infer the type
-//   from a substring, so we fall back to any
+  .from<User>('users'); // Retorno any[]
+//  O TypeScript não nos fornece uma maneira de olhar para uma string e inferir o tipo
+//  de uma substring, então voltamos ao any
 
-// We can side-step this using knex.ref:
+// Podemos contornar isso usando o knex.ref:
 knex.select(knex.ref('id').withSchema('users'))
-  .from<User>('users'); // Resolves to Pick<User, "id">[]
+  .from<User>('users'); // Tipo <User, "id">[]
 
 knex.select('id as identifier')
-  .from<User>('users'); // Resolves to any[], for same reason as above
+  .from<User>('users'); // resolve o any[], pela mesma razão que acima;
 
-// Refs are handy here too:
+// As Refs também são úteis aqui:
 knex.select(knex.ref('id').as('identifier'))
-  .from<User>('users'); // Resolves to { identifier: number; }[]
+  .from<User>('users'); // Resolve para { identifier: number; }[]
 ```
 
 
@@ -734,10 +716,10 @@ knex.select('*')
 
 ```ts
 knex.select('id')
-  .from('users'); // Resolves to any[]
+  .from('users'); // any[]
 
 knex.select('id')
-  .from<User>('users'); // Results to Pick<User, "id">[]
+  .from<User>('users'); // Pick<User, "id">[]
 ```
 
 
@@ -835,15 +817,15 @@ knex.select('*')
 > **.insert(dados, [retornando], [opções])**
 
 ```js
-// Returns [1] in "mysql", "sqlite", "oracle"; 
-// [] in "postgresql" 
-// unless the 'returning' parameter is set.
+// Retorna [1] no "mysql", "sqlite", "oracle"; 
+// [] no "postgresql" 
+//  a menos que o parâmetro "retorno" esteja definido.
 knex('books').insert({title: 'Slaughterhouse Five'})
 
-// Normalizes for empty keys on multi-row insert:
+// Normaliza para chaves vazias em inserts com várias linhas:
 knex('coords').insert([{x: 20}, {y: 30},  {x: 10, y: 20}])
 
-// Returns [2] in "mysql", "sqlite"; [2, 3] in "postgresql"
+// Retorna [2] no "mysql", "sqlite"; [2, 3] no "postgresql"
 knex
   .insert(
     [
@@ -858,9 +840,9 @@ knex
 Para MSSQL, gatilhos em tabelas podem interromper o retorno de um valor válido das instruções de inserção padrão. Você pode adicionar a `includeTriggerModifications`opção para contornar esse problema. Isso modifica o SQL para que os valores apropriados possam ser retornados. Isso só modifica a instrução se você estiver usando MSSQL, um valor de retorno for especificado e a `includeTriggerModifications`opção estiver definida.
 
 ```js
-// Adding the option includeTriggerModifications 
-// allows you to run statements on tables 
-// that contain triggers. Only affects MSSQL.
+// Add a opção includeTriggerModifications 
+// permite que você execute declarações em tabelas  
+// que contenham triggers. Só afeta o MSSQL.
 knex('books')
   .insert(
     {title: 'Alice in Wonderland'}, 
@@ -907,12 +889,12 @@ knex('books')
     thisKeyIsSkipped: undefined
   })
 
-// Returns [1] in "mysql", "sqlite", "oracle"; 
-// [] in "postgresql" 
-// unless the 'returning' parameter is set.
+// Retorna [1] no "mysql", "sqlite", "oracle"; 
+// [] no "postgresql" 
+// a menos que o parâmetro "retorno" esteja definido.
 knex('books').update('title', 'Slaughterhouse Five')
 
-/** Returns  
+/** Retorna 
  * [{ 
  *   id: 42, 
  *   title: "The Hitchhiker's Guide to the Galaxy" 
@@ -927,9 +909,9 @@ knex('books')
 :arrow_right: Para MSSQL, gatilhos em tabelas podem interromper o retorno de um valor válido das instruções de atualização padrão. Você pode adicionar a `includeTriggerModifications` para contornar esse problema. Isso modifica o SQL para que os valores apropriados possam ser retornados. Isso só modifica a instrução se você estiver usando MSSQL, um valor de retorno for especificado e a `includeTriggerModifications` estiver definida.
 
 ```js
-// Adding the option includeTriggerModifications allows you
-// to run statements on tables that contain triggers.
-// Only affects MSSQL.
+// Adicionando a opção includeTriggerModifications permite que você
+// rode declarações em tabelas que contenham triggers.
+// somente no MSSQL.
 knex('books')
   .update(
     {title: 'Alice in Wonderland'}, 
@@ -957,9 +939,9 @@ knex('accounts')
 :arrow_right:Para MSSQL, gatilhos em tabelas podem interromper o retorno de um valor válido das instruções de exclusão padrão. Você pode adicionar a `includeTriggerModifications` para contornar esse problema. Isso modifica o SQL para que os valores apropriados possam ser retornados. Isso só modifica a instrução se você estiver usando MSSQL, um valor de retorno for especificado e a `includeTriggerModifications` estiver definida.
 
 ```js
-// Adding the option includeTriggerModifications allows you
-// to run statements on tables that contain triggers. 
-// Only affects MSSQL.
+// Adicionando a opção includeTriggerModifications permite que você
+// rode declarações em tabelas que contenham triggers. 
+// Somente no MSSQL.
 knex('books')
   .where('title', 'Alice in Wonderland')
   .del(
@@ -1008,8 +990,8 @@ knex('users').count(knex.raw('??', ['active']))
 **Exemplo com TS**
 
 ```ts
- knex('users').count('age') // Resolves to: Record<string, number | string>
- knex('users').count({count: '*'}) // Resolves to { count?: string | number | undefined; }
+ knex('users').count('age') // Resolve para: Record<string, number | string>
+ knex('users').count({count: '*'}) // Resolve para { count?: string | number | undefined; }
 ```
 
 Use **countDistinct** para adicionar uma expressão distinta dentro da função de agregação.
@@ -1666,8 +1648,8 @@ knex.schema.createTable('users', function (table) {
 ```js
 knex.schema.createTableLike('new_users', 'users')
 
-// "new_users" table contains columns 
-// of users and two new columns 'age' and 'last_name'.
+// a tabela "new_users" que contem coluna 
+// de usuários e duas novas colunas 'age' e 'last_name'.
 knex.schema.createTableLike('new_users', 'users', (table) => {
   table.integer('age');
   table.string('last_name');
@@ -1883,7 +1865,503 @@ knex.schema.table('users', function (table) {
 
 
 
+# Migrations
+
+<a href="https://knexjs.org/guide/migrations.html">Documentação completa</a>
+
+:information_source: As migrações permitem que você defina conjuntos de alterações de esquema para que atualizar um banco de dados seja muito fácil.
+
+## CLI de migração
+
+```bash
+$ npm install knex -g
+```
+
+As migrações usam um **knexfile** , que especifica várias configurações para o módulo. Para criar um novo knexfile, execute o seguinte:
+
+```bash
+$ knex init
+
+# or for .ts
+
+$ knex init -x ts
+```
+
+:arrow_right: Será gerado um arquivo chamado **knexfile.js** que contém nossas várias configurações de banco de dados. 
+
+**Configuração básica de um knexfile.js**
+
+```sh
+module.exports = {
+  client: 'pg',
+  connection: process.env.DATABASE_URL || { 
+    user: 'me', 
+    database: 'my_app' 
+  }
+};
+```
+
+Você também pode exportar uma função assíncrona do knexfile. Isso é útil quando você precisa buscar credenciais de um local seguro...
+
+```sh
+module.exports = async () => {
+  const configuration = await fetchConfiguration();
+  return {
+    ...configuration,
+    migrations: {}
+  }
+};
+
+```
+
+**Configuração do ambiente**
+
+```sh
+module.exports = {
+  development: {
+    client: 'pg',
+    connection: { user: 'me', database: 'my_app' }
+  },
+  production: { 
+    client: 'pg', 
+    connection: process.env.DATABASE_URL 
+  }
+};
+```
+
+Depois de ter um knexfile.js, você pode usar a ferramenta de migração para criar arquivos de migração para o diretório especificado (migrações padrão). A criação de novos arquivos de migração pode ser feita executando:
+
+```sh
+$ knex migrate:make migration_name 
+
+# or for .ts
+
+$ knex migrate:make migration_name -x ts
+```
+
+Depois de terminar de escrever as migrações, você pode atualizar o banco de dados correspondente ao seu `NODE_ENV`executando:
+
+```sh
+$ knex migrate:latest
+```
+
+**Exemplo de migração gerada**
+
+```sh
+module.exports = {
+  client: 'pg',
+  migrations: {
+    extension: 'ts'
+  }
+};
+```
+
+**Para reverter o último lote de migrações:**
+
+```sh
+$ knex migrate:rollback
+```
+
+**Para reverter todas as migrações concluídas:**
+
+```bash
+$ knex migrate:rollback --all
+```
+
+**Para executar a próxima migração que ainda não foi executada**
+
+```sh
+$ knex migrate:up
+```
+
+**Para executar a migração especificada que ainda não foi executada**
+
+```sh
+$ knex migrate:up 001_migration_name.js
+```
+
+**Para desfazer a última migração que foi executada**
+
+```sh
+$ knex migrate:down
+```
+
+**Para desfazer a migração especificada que foi executada**
+
+```sh
+$ knex migrate:down 001_migration_name.js
+```
+
+**Para listar as migrações concluídas e pendentes:**
+
+```sh
+$ knex migrate:list
+```
 
 
 
+### Make
+
+**sintaxe**
+
+> **knex.migrate.make(name, [config])**
+
+:arrow_right: Cria uma nova migração, com o nome da migração que está sendo adicionada.
+
+
+
+### Latest
+
+**sintaxe**
+
+> **knex.migrate.latest([config])**
+
+:arrow_right: Executa todas as migrações que ainda não foram executadas.
+
+```js
+knex.migrate.latest()
+  .then(function() {
+    return knex.seed.run();
+  })
+  .then(function() {
+    // as migrações estão concluídas
+  });
+```
+
+
+
+### Custom Migration
+
+```js
+//  Criar uma classe de migração personalizada
+class MyMigrationSource {
+  // Deve retornar uma Promise contendo uma lista de migrações. 
+  // As migrações podem ser o que você quiser, 
+  // eles serão passados como argumentos para getMigrationName  
+  // e getMigration
+  getMigrations() {
+// Neste exemplo, estamos apenas retornando nomes de migração
+    return Promise.resolve(['migration1'])
+  }
+
+  getMigrationName(migration) {
+    return migration;
+  }
+
+  getMigration(migration) {
+    switch(migration) {
+      case 'migration1':
+        return {
+          up(knex)   { /* ... */ },
+          down(knex) { /* ... */ },
+        }
+    }
+  }
+}
+
+// passe uma instância de sua fonte de migração como configuração knex
+knex.migrate.latest({ 
+  migrationSource: new MyMigrationSource() 
+})
+```
+
+
+
+
+
+## Seed Files
+
+Os **Seeders** permitem que você preencha seu banco de dados com dados de teste ou independentemente de seus arquivos de migração.
+
+**Seed CLI**
+
+:arrow_right: Para criar um arquivo **Seed**, execute:
+
+```bash
+knex seed:make seed_name
+```
+
+Configuração básica do seed:
+
+```js
+module.exports = {
+  // ...
+  development: {
+    client: {/* ... */},
+    connection: {/* ... */},
+    seeds: {
+        directory: './seeds/dev'             //<<---Caminhos absolitos não são suportados
+    }
+  }
+  // ...
+  }
+```
+
+**Para executar arquivos seed, execute:**
+
+```bash
+$ knex seed:run
+```
+
+Para executar arquivos **seed** **específicos**, execute:
+
+```sh
+$ knex seed:run --specific=seed-filename.js --specific=another-seed-filename.js
+```
+
+
+
+## Transações em Migrações
+
+:arrow_right: Por padrão, cada migração é executada dentro de uma transação. Sempre que necessário, pode-se desabilitar transações para todas as migrações por meio da opção de configuração `config.disableTransactions`de migração comum ou por migração, expondo uma propriedade booleana `config.transaction`de um arquivo de migração:
+
+```js
+exports.up = function(knex) {
+  return knex.schema
+    .createTable('users', function (table) {
+        table.increments('id');
+        table.string('first_name', 255).notNullable();
+        table.string('last_name', 255).notNullable();
+    })
+    .createTable('products', function (table) {
+        table.increments('id');
+        table.decimal('price').notNullable();
+        table.string('name', 1000).notNullable();
+    });
+};
+
+exports.down = function(knex) {
+  return knex.schema
+      .dropTable("products")
+      .dropTable("users");
+};
+
+exports.config = { transaction: false };
+```
+
+
+
+Para o knexfile você pode usar uma exportação padrão,
+ela terá precedência sobre a exportação nomeada.
+
+```js
+/**
+ * filename: knexfile.js
+ * Para o arquivo knex você pode usar uma exportação padrão
+ **/        
+export default {
+  client: 'sqlite3',
+  connection: {
+    filename: '../test.sqlite3',
+  },
+  migrations: {
+    directory: './migrations',
+  },
+  seeds: {
+    directory: './seeds',
+  },
+}
+
+/**
+ * filename: knexfile.js
+ * Deixe a knex encontrar a configuração, fornecendo exportações nomeadas,
+ * mas se for exportado por padrão, ele terá precedência e será usado em seu lugar
+ **/
+const config = {
+  client: 'sqlite3',
+  connection: {
+    filename: '../test.sqlite3',
+  },
+  migrations: {
+    directory: './migrations',
+  },
+  seeds: {
+    directory: './seeds',
+  },
+};
+/** isto será usado, tem precedência sobre a exportação nomeada */
+export default config;
+/** Exportações nomeadas, serão usadas se você não forneceu uma exportação padrão */
+export const { client, connection, migrations, seeds } = config;
+```
+
+Os arquivos de propagação e migração precisam seguir as convenções do Knex
+
+```js
+// file: seed.js
+/** 
+ * O mesmo que com os módulos do CommonJS
+ * Você precisará exportar uma função nomeada "seed".
+ * */
+export function seed(next) {
+  // ...a lógica do seed aqui
+}
+
+// file: migration.js
+/** 
+ * O mesmo que a versão CommonJS, o arquivo de migração deve ser exportado 
+ * funções : "up" e "down" ;
+ */
+export function up(knex) {
+  // ... lógica da migração aqui
+}
+export function down(knex) {
+// ... Lógica da migração aqui
+}
+```
+
+
+
+
+
+<hr>
+
+
+
+## Interfaces
+
+:arrow_right: O **Knex.js** oferece várias opções para lidar com a saída da consulta.
+
+
+
+### Promises
+
+:arrow_right: O principal benefício das promises é a capacidade de capturar erros lançados sem travar o aplicativo do nó, fazendo com que seu código se comporte como um **.try / .catch / .finally** em código síncrono.
+
+```js
+knex.select('name')
+  .from('users')
+  .where('id', '>', 20)
+  .andWhere('id', '<', 200)
+  .limit(10)
+  .offset(x)
+  .then(function(rows) {
+    return _.pluck(rows, 'name');
+  })
+  .then(function(names) {
+    return knex.select('id')
+      .from('nicknames')
+      .whereIn('nickname', names);
+  })
+  .then(function(rows) {
+    console.log(rows);
+  })
+  .catch(function(error) {
+    console.error(error)
+  });
+```
+
+
+
+<a href="https://knexjs.org/guide/interfaces.html#promises">Ver mais na documentação</a>
+
+
+
+<hr>
+
+
+
+## Transações
+
+:information_source: As transações são um recurso importante dos bancos de dados relacionais, pois permitem a recuperação correta de falhas e mantêm um banco de dados consistente mesmo em casos de falha do sistema. 
+
+As transações são tratadas passando uma função de manipulador para `knex.transaction`. A função handler aceita um único argumento, um objeto que pode ser usado de duas maneiras:
+
+1. Como a conexão knex "consciente da promessa"
+2. Como um objeto passado para uma consulta come eventualmente chamar **commit** ou **rollback**.
+
+```js
+// Usando trx como um construtor de consultas:
+knex.transaction(function(trx) {
+
+  const books = [
+    {title: 'Canterbury Tales'},
+    {title: 'Moby Dick'},
+    {title: 'Hamlet'}
+  ];
+
+  return trx
+    .insert({name: 'Old Books'}, 'id')
+    .into('catalogues')
+    .then(function(ids) {
+      books.forEach((book) => book.catalogue_id = ids[0]);
+      return trx('books').insert(books);
+    });
+})
+.then(function(inserts) {
+  console.log(inserts.length + ' new books saved.');
+})
+.catch(function(error) {
+  // Se chegarmos aqui, isso significa que 
+  // nem os catálogos dos 'Livros Antigos' inserem,
+  // nem qualquer um dos encartes dos livros terá sido realizado.
+  console.error(error);
+});
+```
+
+Outro Exemplo
+
+```js
+// Usando trx como um objeto de transação:
+knex.transaction(function(trx) {
+
+  const books = [
+    {title: 'Canterbury Tales'},
+    {title: 'Moby Dick'},
+    {title: 'Hamlet'}
+  ];
+
+  knex.insert({name: 'Old Books'}, 'id')
+    .into('catalogues')
+    .transacting(trx)
+    .then(function(ids) {
+      books.forEach((book) => book.catalogue_id = ids[0]);
+      return knex('books').insert(books).transacting(trx);
+    })
+    .then(trx.commit)
+    .catch(trx.rollback);
+})
+.then(function(inserts) {
+  console.log(inserts.length + ' new books saved.');
+})
+.catch(function(error) {
+  // Se chegarmos aqui, isso significa que 
+  // nem os catálogos dos 'Old Books' inserem,
+  // nem qualquer um dos encartes dos books terá sido realizado.
+  console.error(error);
+});
+```
+
+O Exemplo de cima, usando **async/await.**
+
+```js
+try {
+  await knex.transaction(async trx => {
+
+    const books = [
+      {title: 'Canterbury Tales'},
+      {title: 'Moby Dick'},
+      {title: 'Hamlet'}
+    ];
+    
+    const ids = await trx('catalogues')
+      .insert({
+        name: 'Old Books'
+      }, 'id')
+
+    books.forEach((book) => book.catalogue_id = ids[0])
+    const inserts = await trx('books').insert(books)
+    
+    console.log(inserts.length + ' new books saved.')
+  })
+} catch (error) {
+  // Se chegarmos aqui, isso significa que nem os catálogos dos 'Old Books' inserem,
+  // nem qualquer um dos encartes dos books terá sido realizado.
+  console.error(error);
+}
+```
+
+
+
+<a href="https://knexjs.org/guide/transactions.html">Ver mais na documentação</a>
 
