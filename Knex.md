@@ -1,4 +1,10 @@
-# Estudo Sobre o KnexJS <img src="https://knexjs.org/knex-logo.png" alt="img" style="zoom:20%;" />
+<div style="width: 100vw; display:flex; justify-content: center; aling-items: center">
+  
+  ![image-removebg-preview](https://user-images.githubusercontent.com/84424883/200839774-0e9948c9-6d45-41c8-b99a-df4151a30740.png)
+
+</div>
+
+# Estudo Sobre o KnexJS 
 
 <a href="https://knexjs.org/">Documentação completa</a>
 
